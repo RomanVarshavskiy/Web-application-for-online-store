@@ -1,51 +1,67 @@
-import requests
-
-# Импорт встроенной библиотеки для работы веб-сервера
+import os
+import mimetypes
 from http.server import BaseHTTPRequestHandler, HTTPServer
-import time
 
-# Для начала определим настройки запуска
-hostName = "localhost" # Адрес для доступа по сети
-serverPort = 8080 # Порт для доступа по сети
+hostName = "localhost"
+serverPort = 8080
+
 
 class MyServer(BaseHTTPRequestHandler):
-    """
-        Специальный класс, который отвечает за
-        обработку входящих запросов от клиентов
-    """
-
-
     def do_GET(self):
-        """ Метод для обработки входящих GET-запросов """
-        # with open("html_pages/contacts.html", "r", encoding="utf-8") as f:
-        #     data = f.read()
-        url = "https://raw.githubusercontent.com/AlexandrPonomarev-it/my_1_web/feature/main.html"
-        response = requests.get(url)
+        try:
+            # Определяем корневую директорию проекта
+            root_dir = os.path.dirname(os.path.abspath(__file__))
 
-        if response.status_code == 200:
-            html_content = response.text
-            self.wfile.write(bytes(html_content, "utf-8"))  # Тело ответа
-            # Теперь ты можешь использовать html_content в своем приложении
-        else:
-            print("Не удалось загрузить файл")
-        self.send_response(200) # Отправка кода ответа
-        self.send_header("Content-type", "text/html") # Отправка типа данных, который будет передаваться
-        self.end_headers() # Завершение формирования заголовков ответа
-        # self.wfile.write(bytes(data, "utf-8")) # Тело ответа
+            # Если запрошен корневой путь, показываем contacts.html
+            if self.path == '/':
+                self.path = '/html_pages/contacts.html'
+
+            # Получаем полный путь к запрошенному файлу
+            file_path = os.path.join(root_dir, self.path.lstrip('/'))
+
+            # Определяем MIME-тип файла
+            content_type, _ = mimetypes.guess_type(file_path)
+            if content_type is None:
+                content_type = 'application/octet-stream'
+
+            # Читаем и отправляем файл
+            if os.path.exists(file_path):
+                self.send_response(200)
+                self.send_header('Content-type', content_type)
+                self.end_headers()
+
+                # Для текстовых файлов используем текстовое чтение
+                if content_type.startswith(('text/', 'application/javascript')):
+                    with open(file_path, 'r', encoding='utf-8') as f:
+                        content = f.read()
+                        self.wfile.write(content.encode('utf-8'))
+                else:
+                    # Для бинарных файлов используем бинарное чтение
+                    with open(file_path, 'rb') as f:
+                        self.wfile.write(f.read())
+            else:
+                # Если файл не найден
+                self.send_response(404)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                self.wfile.write(b'404 Not Found')
+
+        except Exception as e:
+            print(f"Ошибка при обработке запроса: {e}")
+            self.send_response(500)
+            self.send_header('Content-type', 'text/html')
+            self.end_headers()
+            self.wfile.write(f"Внутренняя ошибка сервера: {str(e)}".encode('utf-8'))
+
 
 if __name__ == "__main__":
-    # Инициализация веб-сервера, который будет по заданным параметрах в сети
-    # принимать запросы и отправлять их на обработку специальному классу, который был описан выше
     webServer = HTTPServer((hostName, serverPort), MyServer)
-    print("Server started http://%s:%s" % (hostName, serverPort))
+    print(f"Сервер запущен http://{hostName}:{serverPort}")
 
     try:
-        # Cтарт веб-сервера в бесконечном цикле прослушивания входящих запросов
         webServer.serve_forever()
     except KeyboardInterrupt:
-        # Корректный способ остановить сервер в консоли через сочетание клавиш Ctrl + C
         pass
 
-    # Корректная остановка веб-сервера, чтобы он освободил адрес и порт в сети, которые занимал
     webServer.server_close()
-    print("Server stopped.")
+    print("Сервер остановлен.")
