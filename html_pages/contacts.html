@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -115,17 +115,17 @@
                   <div class="col">
                     <div class="card text-bg-light">
                         <div class="card-body">
-                            <form>
+                            <form method="POST" action="/send_message">
                               <div class="mb-3">
-                                <input placeholder="Имя" type="text" class="form-control">
+                                  <input name="name" placeholder="Имя" type="text" class="form-control">
                               </div>
                               <div class="mb-3">
-                                <input placeholder="E-mail" type="email" class="form-control" aria-describedby="emailHelp">
+                                  <input name="email" placeholder="E-mail" type="email" class="form-control" aria-describedby="emailHelp">
                               </div>
                               <div class="mb-3">
-                                  <textarea class="form-control" placeholder="Сообщение" id="exampleFormControlTextarea1" rows="5"></textarea>
+                                  <textarea name="message" class="form-control" placeholder="Сообщение" id="exampleFormControlTextarea1" rows="5"></textarea>
                               </div>
-                              <button class="btn btn-primary" type="button">Отправить</button>
+                              <button class="btn btn-primary" type="submit">Отправить</button>
                             </form>
                         </div>
                     </div>
