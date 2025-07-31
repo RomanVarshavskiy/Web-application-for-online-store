@@ -8,7 +8,17 @@ packages = [{include = "homework_21"}]
 
 [tool.poetry.dependencies]
 python = "^3.13"
+isort = "^6.0.1"
+black = "^25.1.0"
+flake8 = "^7.3.0"
+mypy = "^1.17.0"
 
+
+[tool.poetry.group.lint.dependencies]
+flake8 = "^7.3.0"
+mypy = "^1.17.0"
+black = "^25.1.0"
+isort = "^6.0.1"
 
 [build-system]
 requires = ["poetry-core"]
